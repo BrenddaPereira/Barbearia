@@ -26,6 +26,14 @@ function App() {
   useEffect(() => { localStorage.setItem("carille-services", JSON.stringify(services)); }, [services]);
   useEffect(() => { localStorage.setItem("carille-barbers", JSON.stringify(barbers)); }, [barbers]);
   useEffect(() => { localStorage.setItem("carille-appointments", JSON.stringify(appointments)); }, [appointments]);
+  useEffect(() => {
+    fetch(`${API}/appointments`)
+      .then((response) => response.ok ? response.json() : [])
+      .then((remoteAppointments) => {
+        if (Array.isArray(remoteAppointments) && remoteAppointments.length) setAppointments(remoteAppointments);
+      })
+      .catch(() => console.info("Usando reservas locais enquanto a API não responde"));
+  }, []);
 
   const startBooking = (service = services[0], barber = barbers[0]) => setBooking({ step: 1, service, barber, date: new Date().toISOString().slice(0, 10), time: "", name: "", phone: "" });
   const reserve = async (data) => {
