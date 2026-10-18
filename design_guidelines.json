@@ -1,0 +1,63 @@
+{
+  "app_context": {
+    "name": "Barbearia do Carille",
+    "type": "hybrid_fullstack",
+    "aesthetic": "Moderno premium: preto, branco e vermelho (Luxury & High-Contrast Swiss-Editorial)",
+    "target_audience": "Modern men seeking premium grooming experience with fast online booking and professional barbers",
+    "primary_goal": "Enable quick client appointment scheduling, service selection, barber selection, time slot picking, and instant visual confirmation with a management area for services/barbers/appointments."
+  },
+  "typography": {
+    "heading_font": "Bebas Neue / Montserrat / Display Sans",
+    "body_font": "Inter / Plus Jakarta Sans",
+    "rules": {
+      "h1_size": "text-4xl sm:text-5xl lg:text-6xl tracking-tighter uppercase font-black",
+      "h2_size": "text-2xl sm:text-3xl lg:text-4xl tracking-tight uppercase font-bold",
+      "h3_size": "text-xl sm:text-2xl font-bold",
+      "body_size": "text-base sm:text-sm text-neutral-300",
+      "label_size": "text-xs uppercase tracking-[0.2em] font-semibold text-neutral-400"
+    }
+  },
+  "colors": {
+    "palette": {
+      "background_primary": "#0A0A0A",
+      "background_secondary": "#141414",
+      "surface": "#1A1A1A",
+      "surface_border": "#2E2E2E",
+      "brand_red": "#DC2626",
+      "brand_red_hover": "#EF4444",
+      "accent_white": "#FAFAFA",
+      "neutral_muted": "#A3A3A3",
+      "forbidden_check": "No #7351B7 or #1B93A4 used"
+    },
+    "guidelines": "Use Deep Obsidian #0A0A0A as anchor. Pure white for text contrast, and Electric/Styptic Red (#DC2626) exclusively for key CTAs and active states."
+  },
+  "visual_enhancers": {
+    "glassmorphism": "backdrop-blur-xl bg-black/70 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)]",
+    "tracing_beam": "animated red glowing gradient border on hero cards and selected active states",
+    "textures": "Subtle noise overlay and clean geometric grid lines"
+  },
+  "component_structure": {
+    "public_page": {
+      "hero_section": "Immersive luxury barber interior background with high-contrast typography, live badge, and instant 'Agendar Horário' CTA",
+      "services_section": "Editorial pricing & service cards with duration, price, and instant select action",
+      "barbers_section": "Professional barber cards with specialization, rating, and direct booking trigger",
+      "booking_modal_or_section": "Interactive 3-step booking flow (1. Select Service, 2. Select Barber & Date/Time, 3. Client Name & Phone with instant screen confirmation)"
+    },
+    "admin_management_area": {
+      "dashboard_tabs": "Manage Services (add/edit/delete), Manage Barbers (add/edit/delete), Manage Appointments (view list, update status, cancel)"
+    }
+  },
+  "image_urls": {
+    "hero_interior": "https://images.unsplash.com/photo-1773904215697-e6c21fc27ac2?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzOTB8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjBiYXJiZXIlMjBzaG9wJTIwaW50ZXJpb3IlMjBkYXJrJTIwbW9vZHl8ZW58MHx8fHwxNzkyMzUxNzEyfDA&ixlib=rb-4.1.0&q=85",
+    "barber_action": "https://images.unsplash.com/photo-1647140655214-e4a2d914971f?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2MDV8MHwxfHNlYXJjaHwxfHxiYXJiZXIlMjBjdXR0aW5nJTIwaGFpciUyMHByb2Zlc3Npb25hbCUyMHNoYXJwfGVufDB8fHx8MTc5MjM1MTcxMnww&ixlib=rb-4.1.0&q=85",
+    "barber_chair": "https://images.unsplash.com/photo-1788985375145-81da8cc731a2?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzOTB8MHwxfHNlYXJjaHwzfHxsdXh1cnklMjBiYXJiZXIlMjBzaG9wJTIwaW50ZXJpb3IlMjBkYXJrJTIwbW9vZHl8ZW58MHx8fHwxNzkyMzUxNzEyfDA&ixlib=rb-4.1.0&q=85",
+    "logo_sign": "https://images.unsplash.com/photo-1570369302055-4661fdad99e3?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NjZ8MHwxfHNlYXJjaHwyfHxiYXJiZXIlMjBzaG9wJTIwbG9nbyUyMG1pbmltYWxpc3QlMjBibGFjayUyMHJlZHxlbnwwfHx8fDE3OTIzNTE3MTJ8MA&ixlib=rb-4.1.0&q=85"
+  },
+  "UNIVERSAL GUIDELINES FOR MAIN AGENT": [
+    "Ensure all interactive elements have data-testid attributes.",
+    "Never use full transparent background for navigation or floating dialogs without backdrop blur.",
+    "Maintain strict dark luxury aesthetic with #DC2626 red accents and pure white typography.",
+    "Implement fully working editable demo data for services, barbers, and appointments stored in localStorage with React state.",
+    "Include both public booking client view and admin management dashboard."
+  ]
+}
