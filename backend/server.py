@@ -56,7 +56,16 @@ async def send_whatsapp_template(appointment: Appointment, template: str, status
 
     version = os.environ.get("META_GRAPH_VERSION", "v23.0")
     language = os.environ.get("META_WA_LANGUAGE", "pt_BR")
-    when = f"{appointment.date} às {appointment.time}"
+    when = appointment.date
+    is_reminder = status_field == "reminderStatus"
+    parameters = [
+        {"type": "text", "text": appointment.name},
+        {"type": "text", "text": when},
+        {"type": "text", "text": appointment.time},
+        {"type": "text", "text": appointment.barber.get("name", "Barbeiro")},
+    ]
+    if not is_reminder:
+        parameters.append({"type": "text", "text": appointment.service.get("name", "serviço")})
     payload = {
         "messaging_product": "whatsapp",
         "recipient_type": "individual",
@@ -67,13 +76,7 @@ async def send_whatsapp_template(appointment: Appointment, template: str, status
             "language": {"code": language},
             "components": [{
                 "type": "body",
-                "parameters": [
-                    {"type": "text", "text": appointment.name},
-                    {"type": "text", "text": appointment.time},
-                    {"type": "text", "text": when},
-                    {"type": "text", "text": appointment.barber.get("name", "Barbeiro")},
-                    {"type": "text", "text": appointment.service.get("name", "serviço")},
-                ],
+                "parameters": parameters,
             }],
         },
     }
