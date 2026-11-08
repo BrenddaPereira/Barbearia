@@ -23,6 +23,7 @@ Site para a Barbearia do Carille onde clientes agendam horário online, escolhem
 - Imagens, grid editorial, animações de entrada, estados ativos e identificadores de teste nos elementos interativos.
 - Integração preparada para WhatsApp Cloud API via tarefa em background após persistência da reserva, com estados `sent`, `failed`, `retry` e `not_configured`.
 - Payload de template Utility em `pt_BR` com nome, data/horário, barbeiro e serviço, mantendo token exclusivamente no backend.
+- Worker persistente verifica a cada cinco minutos os agendamentos confirmados e prepara o lembrete 24 horas antes, com `reminderStatus` anti-duplicidade.
 
 ## Backlog priorizado
 - P0: nenhum item bloqueante conhecido.
@@ -30,3 +31,4 @@ Site para a Barbearia do Carille onde clientes agendam horário online, escolhem
 - P1: autenticação da área de gestão e edição completa dos dados de barbeiros e serviços.
 - P2: horários e dias de funcionamento configuráveis por barbeiro.
 - P1: adicionar credenciais Meta reais e confirmar template aprovado para ativar o envio de WhatsApp em produção.
+- P1: criar e aprovar o template Utility específico de lembrete em `pt_BR`.
