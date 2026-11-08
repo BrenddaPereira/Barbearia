@@ -1,4 +1,5 @@
-from datetime import datetime, timezone
+import asyncio
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 import logging
 import os
@@ -31,6 +32,7 @@ class Appointment(BaseModel):
     status: str = "Confirmado"
     createdAt: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     whatsappStatus: str = "pending"
+    reminderStatus: str = "pending"
 
 
 def normalize_whatsapp_phone(phone: str) -> str:
@@ -42,18 +44,17 @@ def normalize_whatsapp_phone(phone: str) -> str:
     return digits
 
 
-async def send_whatsapp_confirmation(appointment: Appointment):
+async def send_whatsapp_template(appointment: Appointment, template: str, status_field: str):
     phone_id = os.environ.get("META_PHONE_NUMBER_ID")
     access_token = os.environ.get("META_ACCESS_TOKEN")
     if not phone_id or not access_token:
         logging.getLogger(__name__).warning("WhatsApp não configurado; reserva mantida sem envio")
         await db.appointments.update_one(
-            {"id": appointment.id}, {"$set": {"whatsappStatus": "not_configured"}}
+            {"id": appointment.id}, {"$set": {status_field: "not_configured"}}
         )
         return
 
     version = os.environ.get("META_GRAPH_VERSION", "v23.0")
-    template = os.environ.get("META_WA_TEMPLATE", "appointment_confirmation")
     language = os.environ.get("META_WA_LANGUAGE", "pt_BR")
     when = f"{appointment.date} às {appointment.time}"
     payload = {
@@ -85,14 +86,49 @@ async def send_whatsapp_confirmation(appointment: Appointment):
             )
         status = "sent" if response.is_success else "failed"
         await db.appointments.update_one(
-            {"id": appointment.id}, {"$set": {"whatsappStatus": status}}
+            {"id": appointment.id}, {"$set": {status_field: status}}
         )
         if not response.is_success:
             logging.getLogger(__name__).error("Falha no envio WhatsApp: status=%s", response.status_code)
     except httpx.HTTPError:
         await db.appointments.update_one(
-            {"id": appointment.id}, {"$set": {"whatsappStatus": "retry"}}
+            {"id": appointment.id}, {"$set": {status_field: "retry"}}
         )
+
+
+async def send_whatsapp_confirmation(appointment: Appointment):
+    template = os.environ.get("META_WA_TEMPLATE", "appointment_confirmation")
+    await send_whatsapp_template(appointment, template, "whatsappStatus")
+
+
+async def send_whatsapp_reminder(appointment: Appointment):
+    template = os.environ.get("META_WA_REMINDER_TEMPLATE")
+    if not template:
+        await db.appointments.update_one(
+            {"id": appointment.id}, {"$set": {"reminderStatus": "not_configured"}}
+        )
+        return
+    await send_whatsapp_template(appointment, template, "reminderStatus")
+
+
+async def reminder_worker():
+    while True:
+        try:
+            now = datetime.now(timezone.utc)
+            appointments = await db.appointments.find(
+                {"status": "Confirmado", "reminderStatus": "pending"}, {"_id": 0}
+            ).to_list(1000)
+            for document in appointments:
+                try:
+                    haircut_time = datetime.fromisoformat(f"{document['date']}T{document['time']}:00").replace(tzinfo=timezone.utc)
+                    if now <= haircut_time <= now.replace(microsecond=0) + timedelta(hours=24):
+                        appointment = Appointment(**document)
+                        await send_whatsapp_reminder(appointment)
+                except (KeyError, ValueError):
+                    logging.getLogger(__name__).warning("Agendamento inválido para lembrete: %s", document.get("id"))
+        except Exception:
+            logging.getLogger(__name__).exception("Erro no worker de lembretes")
+        await asyncio.sleep(300)
 
 
 @api_router.get("/")
@@ -137,8 +173,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+reminder_task = None
+
+
+@app.on_event("startup")
+async def start_reminder_worker():
+    global reminder_task
+    reminder_task = asyncio.create_task(reminder_worker())
 
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
+    if reminder_task:
+        reminder_task.cancel()
     client.close()
